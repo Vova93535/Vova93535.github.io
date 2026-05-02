@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>100X + СВОИ ЗВУКИ • иконка button....jpg</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 10% 20%, #0b0e1a, #010101);
+            font-family: system-ui, 'Segoe UI', 'Inter', monospace;
+            padding: 1.5rem;
+            color: #eee;
+        }
+
+        .header {
+            max-width: 1300px;
+            margin: 0 auto 2rem auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #ffcd7e, #ff9640);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .badge {
+            background: #1f2332cc;
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 0.4rem 1.2rem;
+            display: inline-block;
+            margin: 1rem auto;
+            font-weight: bold;
+            border: 1px solid #ffb85e;
+        }
+
+        .lore {
+            background: #03050bdd;
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.9rem;
+            border-left: 4px solid #f90;
+            border-right: 4px solid #f90;
+        }
+
+        .virus {
+            background: #8b2c2c;
+            display: inline-block;
+            padding: 0.1rem 0.8rem;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        .mega-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .mega-btn {
+            background: linear-gradient(145deg, #1f1a2e, #0a0c18);
+            border: 2px solid #ffaa55;
+            border-radius: 4rem;
+            padding: 1.2rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.05s linear;
+            min-width: 240px;
+            box-shadow: 0 0 15px rgba(255, 170, 85, 0.3);
+        }
+
+        .mega-btn:active {
+            transform: scale(0.96);
+            background: #2a2340;
+        }
+
+        .mega-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFE6B0, #FFA559);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .mega-sub {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 6px;
+        }
+
+        .section {
+            max-width: 1400px;
+            margin: 2rem auto;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 3rem;
+            padding: 1.8rem 1rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 160, 60, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #ffcd7e;
+            text-shadow: 0 0 5px black;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 145px));
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .sound-btn {
+            background: #0f121ed9;
+            border-radius: 2rem;
+            padding: 0.8rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid #2e324b;
+            transition: 0.05s linear;
+            backdrop-filter: blur(2px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sound-btn:active {
+            transform: scale(0.96);
+            background: #1e233b;
+            border-color: #ffaa55;
+        }
+
+        /* иконка кнопки (ваш button....jpg) */
+        .btn-icon {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px black);
+            pointer-events: none;
+        }
+
+        .btn-label {
+            font-weight: bold;
+            font-size: 0.7rem;
+            background: #00000077;
+            padding: 4px 8px;
+            border-radius: 30px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .label-oi {
+            color: #ffcf8a;
+            background: #ff8c1a22;
+        }
+
+        .label-maks {
+            color: #ffaeae;
+            background: #ff4d4d22;
+        }
+
+        .label-user {
+            color: #aaffdd;
+            background: #00aaff22;
+        }
+
+        .add-sound-area {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .add-btn {
+            background: #2a2f44;
+            border: 2px dashed #ffaa55;
+            border-radius: 60px;
+            padding: 12px 28px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffdd99;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-btn:active {
+            transform: scale(0.97);
+            background: #3f4570;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            opacity: 0.65;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 700px) {
+            .grid {
+                gap: 0.7rem;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 125px));
+            }
+            .btn-icon {
+                width: 40px;
+                height: 40px;
+            }
+            .mega-btn {
+                padding: 0.8rem 1rem;
+                min-width: 180px;
+            }
+            .mega-title {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🧨 100X + СВОИ ЗВУКИ 🧨</h1>
+    <div class="badge">🔊 КАЖДАЯ КНОПКА — ИКОНКА button....jpg</div>
+    <div class="lore">
+        🔥 <strong>«СКАЧАЙ МАКС»</strong> — Макс = минимум безопасности, НЕ максимум.<br>
+        📦 <span class="virus">🐘 В МАКСЕ: МАМОНТ ВИРУС APK</span> &nbsp;|&nbsp; 📱 <strong>tg:</strong> @ok_net_virusov <span style="color:#aaffcc;">✅ «ок нет вирусов»</span><br>
+        💥 <strong>100X кнопки</strong> проигрывают <strong>CLIP-версию</strong> (искажённый звук) <strong>ОДИН РАЗ</strong><br>
+        🖼️ <strong>Иконка кнопки</strong> — ваш файл <code>button....jpg</code>
+    </div>
+</div>
+
+<div class="mega-row">
+    <div class="mega-btn" id="megaOiBtn">
+        <div class="mega-title">🔥 OI OI OE 100X 🔥</div>
+        <div class="mega-sub">clip-дисторшн</div>
+    </div>
+    <div class="mega-btn" id="megaMaksBtn">
+        <div class="mega-title">📢 СКАЧАЙ МАКС 100X 📢</div>
+        <div class="mega-sub">clip-дисторшн</div>
+    </div>
+</div>
+
+<!-- Секция 100 стандартных кнопок -->
+<div class="section">
+    <div class="section-title">🎛️ 100 МЕМНЫХ КНОПОК (50/50)</div>
+    <div class="grid" id="soundGrid"></div>
+</div>
+
+<!-- Секция для пользовательских звуков -->
+<div class="section" id="userSoundsSection" style="display: none;">
+    <div class="section-title">🎵 ПОЛЬЗОВАТЕЛЬСКИЕ ЗВУКИ</div>
+    <div class="grid" id="userGrid"></div>
+</div>
+
+<!-- Кнопка добавления своего звука -->
+<div class="add-sound-area">
+    <label class="add-btn" id="addSoundLabel">
+        ➕ Добавить свой звук
+        <input type="file" id="soundUpload" accept="audio/*">
+    </label>
+</div>
+
+<div class="footer">
+    <span>🎛️ 100 обычных кнопок (полные MP3)</span>
+    <span>⚡ 2 мега-кнопки 100X — clip-версия</span>
+    <span>🎵 Загрузите свои файлы — они появятся ниже</span>
+    <span>🖼️ Иконка button....jpg на каждой кнопке</span>
+</div>
+
+<script>
+    // ----- ИКОНКА button....jpg -----
+    const BUTTON_ICON = 'button.png';
+
+    // ----- ФАЙЛЫ В ВАШЕЙ ПАПКЕ -----
+    const NORMAL_SOUNDS = {
+        oi: {
+            label: 'OI OI OE',
+            file: 'oi-oi-oe-oi-a-eye-eye_tUunIyy.mp3',
+            classMod: 'label-oi'
+        },
+        maks: {
+            label: 'СКАЧАЙ МАКС',
+            file: 'skachai-maks.mp3',
+            classMod: 'label-maks'
+        }
+    };
+
+    const CLIP_SOUNDS = {
+        oi: 'oi-oi-oe-oi-a-eye-eye_clip.mp3',
+        maks: 'skachai-maks_clip.mp3'
+    };
+
+    // ----- МЕГА-КНОПКИ (CLIP) -----
+    function playClip(soundType) {
+        const clipFile = CLIP_SOUNDS[soundType];
+        if (!clipFile) return;
+        const audio = new Audio(clipFile);
+        audio.play().catch(e => console.log("clip error", e));
+    }
+    document.getElementById('megaOiBtn').addEventListener('click', () => playClip('oi'));
+    document.getElementById('megaMaksBtn').addEventListener('click', () => playClip('maks'));
+
+    // ----- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ СОЗДАНИЯ КНОПКИ С ИКОНКОЙ -----
+    function createSoundButton(labelText, filePath, labelClass) {
+        const btn = document.createElement('div');
+        btn.className = 'sound-btn';
+        
+        const img = document.createElement('img');
+        img.src = BUTTON_ICON;
+        img.className = 'btn-icon';
+        img.alt = 'icon';
+        // если иконка не загрузится — ничего страшного, будет пусто
+        img.onerror = () => { img.style.display = 'none'; };
+        
+        const labelSpan = document.createElement('div');
+        labelSpan.className = `btn-label ${labelClass}`;
+        labelSpan.textContent = labelText;
+        
+        btn.appendChild(img);
+        btn.appendChild(labelSpan);
+        
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const audio = new Audio(filePath);
+            audio.play().catch(e => console.log("play error", e));
+            btn.style.transform = 'scale(0.97)';
+            setTimeout(() => { btn.style.transform = ''; }, 120);
+        });
+        
+        return btn;
+    }
+
+    // ----- 50 СТАНДАРТНЫХ КНОПОК -----
+    const TOTAL = 50;
+    const items = [];
+    for (let i = 0; i < TOTAL; i++) {
+        const type = i % 2 === 0 ? 'oi' : 'maks';
+        items.push({ type, ...NORMAL_SOUNDS[type] });
+    }
+    // перемешиваем
+    for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+    } 
+
+    function renderGrid() {
+        const container = document.getElementById('soundGrid');
+        if (!container) return;
+        container.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        items.forEach((item) => {
+            const btn = createSoundButton(item.label, item.file, item.classMod);
+            fragment.appendChild(btn);
+        });
+        container.appendChild(fragment);
+    }
+
+    // ----- ПОЛЬЗОВАТЕЛЬСКИЕ ЗВУКИ -----
+    const userGrid = document.getElementById('userGrid');
+    const userSection = document.getElementById('userSoundsSection');
+
+    function addUserSoundToGrid(soundName, audioUrl) {
+        if (userSection.style.display === 'none') userSection.style.display = 'block';
+        const shortName = soundName.length > 18 ? soundName.slice(0, 15) + '...' : soundName;
+        const btn = createSoundButton(shortName, audioUrl, 'label-user');
+        userGrid.appendChild(btn);
+    }
+
+    const fileInput = document.getElementById('soundUpload');
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const objectUrl = URL.createObjectURL(file);
+        const fileName = file.name.replace(/\.[^/.]+$/, "");
+        addUserSoundToGrid(fileName, objectUrl);
+        fileInput.value = '';
+    });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderGrid);
+    } else {
+        renderGrid();
+    }
+</script>
+</body>
+</html>
