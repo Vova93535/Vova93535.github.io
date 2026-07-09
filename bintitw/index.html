@@ -1,31 +1,66 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bin32 / Bin16 Конвертер</title>
+    <title>Bin32 / Bin16 Converter</title>
     <style>
-        /* Общий сброс и базовые цвета */
+        :root {
+            --bg-page: #000;
+            --bg-panel: #FFFFF0;
+            --text-primary: #1a1a1a;
+            --text-secondary: #333;
+            --border-color: #ccc;
+            --input-bg: #fff;
+            --readonly-bg: #f7f7eb;
+            --button-bg: #e0e0e0;
+            --button-hover: #d0d0d0;
+            --primary-bg: #3b6eff;
+            --primary-hover: #2a5ae0;
+            --error-bg: #ffebee;
+            --error-border: #ef9a9a;
+            --error-text: #b71c1c;
+            --badge-bg: #eee;
+        }
+        body.light {
+            --bg-page: #f5f5f0;
+            --bg-panel: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #333;
+            --border-color: #aaa;
+            --input-bg: #fafafa;
+            --readonly-bg: #f0f0e8;
+            --button-bg: #ddd;
+            --button-hover: #ccc;
+            --primary-bg: #3b6eff;
+            --primary-hover: #2a5ae0;
+            --error-bg: #ffebee;
+            --error-border: #ef9a9a;
+            --error-text: #b71c1c;
+            --badge-bg: #e0e0e0;
+        }
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', system-ui, sans-serif;
         }
         body {
-            background: #000;
+            background: var(--bg-page);
             margin: 0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            transition: background 0.3s;
         }
         .container {
             max-width: 960px;
             width: 100%;
-            background: #FFFFF0;   /* бело-жёлтый */
+            background: var(--bg-panel);
             border-radius: 8px;
             padding: 24px 28px 32px;
-            color: #1a1a1a;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
         }
         h1 {
             text-align: center;
@@ -33,22 +68,22 @@
             font-size: 2.2rem;
             margin: 0 0 4px 0;
             letter-spacing: 1px;
-            color: #222;
+            color: var(--text-primary);
         }
         h1 span {
             font-weight: 600;
-            color: #3b6eff;
+            color: var(--primary-bg);
         }
         .subtitle {
             text-align: center;
             opacity: 0.7;
             font-size: 0.9rem;
             margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 12px;
         }
         .alphabet {
-            background: #fcfcf0;
+            background: var(--readonly-bg);
             border-radius: 8px;
             padding: 10px 14px;
             text-align: center;
@@ -56,8 +91,8 @@
             font-size: 1.2rem;
             letter-spacing: 1px;
             margin-bottom: 22px;
-            border: 1px solid #ddd;
-            color: #222;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
         }
         .alphabet .num { color: #b8860b; }
         .alphabet .ah { color: #1e5a9a; }
@@ -67,7 +102,7 @@
         .section-title {
             font-weight: 400;
             font-size: 1.1rem;
-            color: #333;
+            color: var(--text-secondary);
             margin: 18px 0 10px 0;
         }
         .row {
@@ -85,31 +120,31 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #555;
+            color: var(--text-secondary);
             margin-bottom: 4px;
         }
-        textarea, input[type="text"] {
+        textarea, input[type="text"], select {
             width: 100%;
             padding: 10px 12px;
-            background: #fff;
-            border: 1px solid #ccc;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: #1a1a1a;
+            color: var(--text-primary);
             font-size: 0.95rem;
             font-family: 'Courier New', monospace;
             transition: border 0.2s;
             resize: vertical;
         }
-        textarea:focus, input:focus {
+        textarea:focus, input:focus, select:focus {
             outline: none;
-            border-color: #3b6eff;
+            border-color: var(--primary-bg);
         }
         textarea {
             min-height: 100px;
         }
         .readonly {
-            background: #f7f7eb;
-            color: #1a1a1a;
+            background: var(--readonly-bg);
+            color: var(--text-primary);
             cursor: default;
         }
         .inline-group {
@@ -124,12 +159,21 @@
             margin-right: 2px;
             text-transform: none;
             letter-spacing: 0;
-            color: #222;
+            color: var(--text-primary);
             font-size: 0.95rem;
         }
-        .inline-group input[type="radio"] {
+        .inline-group input[type="radio"],
+        .inline-group input[type="checkbox"] {
+            accent-color: var(--primary-bg);
             margin-right: 4px;
-            accent-color: #3b6eff;
+        }
+        .inline-group select {
+            width: auto;
+            padding: 6px 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
         }
         .btn-group {
             display: flex;
@@ -138,9 +182,9 @@
             margin: 16px 0 10px;
         }
         button {
-            background: #e0e0e0;
+            background: var(--button-bg);
             border: none;
-            color: #222;
+            color: var(--text-primary);
             padding: 10px 24px;
             border-radius: 8px;
             font-weight: 500;
@@ -151,14 +195,14 @@
             font-size: 0.95rem;
         }
         button:hover {
-            background: #d0d0d0;
+            background: var(--button-hover);
         }
         button.primary {
-            background: #3b6eff;
+            background: var(--primary-bg);
             color: #fff;
         }
         button.primary:hover {
-            background: #2a5ae0;
+            background: var(--primary-hover);
         }
         button:active {
             transform: scale(0.97);
@@ -168,39 +212,57 @@
             font-size: 0.75rem;
             text-align: center;
             opacity: 0.6;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid var(--border-color);
             padding-top: 16px;
-            color: #444;
+            color: var(--text-secondary);
         }
         .badge {
-            background: #eee;
+            background: var(--badge-bg);
             padding: 2px 12px;
             border-radius: 20px;
             font-size: 0.7rem;
-            color: #333;
+            color: var(--text-primary);
             display: inline-block;
             margin-left: 6px;
         }
         .error-msg {
-            color: #b71c1c;
-            background: #ffebee;
-            border: 1px solid #ef9a9a;
+            color: var(--error-text);
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
             border-radius: 8px;
             padding: 8px 14px;
             margin: 8px 0;
             display: none;
         }
+        .theme-toggle {
+            float: right;
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: var(--button-bg);
+            color: var(--text-primary);
+        }
+        .theme-toggle:hover {
+            background: var(--button-hover);
+        }
         @media (max-width: 700px) {
             .container { padding: 16px; }
             .row { flex-direction: column; }
+            .theme-toggle { float: none; display: inline-block; margin-bottom: 10px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Bin<span>32</span> / Bin<span>16</span></h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1>Bin<span>32</span> / Bin<span>16</span></h1>
+        <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
+    </div>
     <div class="subtitle">
-        32-ричная система · алфавит <span style="font-family:monospace;">0-9 A-H J-N P-X</span>
+        32-ary system · alphabet <span style="font-family:monospace;">0-9 A-H J-N P-X</span>
         <span class="badge">.ttcodedisk</span>
     </div>
     <div class="alphabet">
@@ -210,55 +272,54 @@
         <span class="px">PQRSTUVWX</span>
     </div>
 
-    <!-- Входной текст -->
-    <div class="section-title">📝 Текст</div>
-    <textarea id="inputText" placeholder="Введите текст для кодирования или декодирования">Hello, world!</textarea>
+    <div class="section-title">Text</div>
+    <textarea id="inputText" placeholder="Enter text to encode or decode">This is a secret message, you need this 512K4D1D51158K1D51354HRD01146LG=</textarea>
 
-    <!-- Режимы интерпретации -->
     <div class="inline-group">
-        <label><input type="radio" name="mode" value="ascii" /> XX ASCII</label>
-        <label><input type="radio" name="mode" value="utf8" checked /> XXXX UTF-8</label>
-        <label><input type="radio" name="mode" value="unicode" /> \uXXXX</label>
+        <label>Mode:</label>
+        <select id="modeSelect">
+            <option value="utf8">UTF-8</option>
+            <option value="ascii">ASCII</option>
+            <option value="auto" selected>Auto</option>
+        </select>
+        <label>Padding char:</label>
+        <input type="text" id="paddingChar" value="=" maxlength="1" style="width:60px; padding:4px 8px;" />
+        <label><input type="checkbox" id="noPadCheck" /> No padding</label>
     </div>
 
-    <!-- Выходные поля -->
     <div class="row">
         <div class="col">
             <label>Bin16 [hex]</label>
-            <textarea id="outputHex" class="readonly" readonly placeholder="Шестнадцатеричный вывод"></textarea>
+            <textarea id="outputHex" class="readonly" readonly placeholder="Hexadecimal output"></textarea>
         </div>
         <div class="col">
-            <label>Bin32 (5-битный код)</label>
-            <textarea id="outputBin32" class="readonly" readonly placeholder="32-ричный вывод"></textarea>
+            <label>Bin32 (5-bit code)</label>
+            <textarea id="outputBin32" class="readonly" readonly placeholder="32-ary output"></textarea>
         </div>
     </div>
 
-    <!-- Выбор активной системы -->
     <div class="inline-group">
         <label><input type="radio" name="system" value="bin32" checked /> Bin32</label>
         <label><input type="radio" name="system" value="bin16" /> Bin16</label>
     </div>
 
-    <!-- Кнопки -->
     <div class="btn-group">
-        <button class="primary" onclick="encode()">🔒 ЗАКОДИРОВАТЬ</button>
-        <button class="primary" onclick="decode()">🔓 РАЗКОДИРОВАТЬ</button>
-        <button onclick="clearAll()">🗑 Очистить</button>
+        <button class="primary" onclick="encode()">ENCODE</button>
+        <button class="primary" onclick="decode()">DECODE</button>
+        <button onclick="clearAll()">CLEAR</button>
     </div>
 
     <div id="errorMsg" class="error-msg"></div>
 
     <div class="footer">
-        Сделано для 32-код системы · алфавит без O и I
+        Bin32 system · alphabet excludes O and I
     </div>
 </div>
 
 <script>
-    // ---------- Константы и функции (без изменений) ----------
     const ALPHABET = "0123456789ABCDEFGHJKLMNPQRSTUVWX";
-    const PADDING = '=';
 
-    function b32encode(bytes) {
+    function b32encode(bytes, paddingChar = '=', noPad = false) {
         if (!bytes || bytes.length === 0) return "";
         const result = [];
         for (let i = 0; i < bytes.length; i += 5) {
@@ -275,29 +336,34 @@
             }
         }
         const rem = bytes.length % 5;
-        if (rem === 1) {
-            result.splice(result.length - 6, 6, PADDING, PADDING, PADDING, PADDING, PADDING, PADDING);
-        } else if (rem === 2) {
-            result.splice(result.length - 4, 4, PADDING, PADDING, PADDING, PADDING);
-        } else if (rem === 3) {
-            result.splice(result.length - 3, 3, PADDING, PADDING, PADDING);
-        } else if (rem === 4) {
-            result.splice(result.length - 1, 1, PADDING);
+        if (!noPad) {
+            if (rem === 1) {
+                result.splice(result.length - 6, 6, paddingChar, paddingChar, paddingChar, paddingChar, paddingChar, paddingChar);
+            } else if (rem === 2) {
+                result.splice(result.length - 4, 4, paddingChar, paddingChar, paddingChar, paddingChar);
+            } else if (rem === 3) {
+                result.splice(result.length - 3, 3, paddingChar, paddingChar, paddingChar);
+            } else if (rem === 4) {
+                result.splice(result.length - 1, 1, paddingChar);
+            }
         }
         return result.join('');
     }
 
-    function b32decode(str) {
+    function b32decode(str, paddingChar = '=') {
+        if (paddingChar !== '=') {
+            str = str.replace(new RegExp(paddingChar.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '=');
+        }
         str = str.replace(/\s/g, '');
         if (!str) return new Uint8Array(0);
         str = str.replace(/=/g, '');
         if (str.length % 8 !== 0 && str.length % 8 !== 2 && str.length % 8 !== 4 && str.length % 8 !== 5 && str.length % 8 !== 7) {
-            throw new Error("Некорректная длина строки Bin32");
+            throw new Error("Invalid Bin32 string length");
         }
         let bits = '';
         for (let ch of str) {
             const idx = ALPHABET.indexOf(ch);
-            if (idx === -1) throw new Error(`Недопустимый символ: '${ch}'`);
+            if (idx === -1) throw new Error(`Invalid character: '${ch}'`);
             bits += idx.toString(2).padStart(5, '0');
         }
         const totalBytes = Math.floor((str.length * 5) / 8);
@@ -316,12 +382,12 @@
 
     function hexDecode(str) {
         str = str.replace(/\s/g, '');
-        if (str.length % 2 !== 0) throw new Error("Hex строка должна иметь чётную длину");
+        if (str.length % 2 !== 0) throw new Error("Hex string must have even length");
         const bytes = new Uint8Array(str.length / 2);
         for (let i = 0; i < str.length; i += 2) {
             const hex = str.substr(i, 2);
             const val = parseInt(hex, 16);
-            if (isNaN(val)) throw new Error(`Некорректный hex: ${hex}`);
+            if (isNaN(val)) throw new Error(`Invalid hex: ${hex}`);
             bytes[i/2] = val;
         }
         return bytes;
@@ -332,56 +398,57 @@
             const bytes = [];
             for (let i = 0; i < text.length; i++) {
                 const code = text.charCodeAt(i);
-                if (code > 127) throw new Error('Текст содержит не-ASCII символы (код > 127)');
+                if (code > 127) throw new Error('Text contains non-ASCII characters (code > 127)');
                 bytes.push(code);
             }
             return new Uint8Array(bytes);
-        } else if (mode === 'utf8') {
+        } else if (mode === 'utf8' || mode === 'auto') {
             return new TextEncoder().encode(text);
-        } else if (mode === 'unicode') {
-            let escaped = '';
-            for (let ch of text) {
-                const code = ch.charCodeAt(0);
-                if (code > 0xFFFF) {
-                    throw new Error('Символ вне BMP (не поддерживается в \\uXXXX)');
-                }
-                escaped += '\\u' + code.toString(16).padStart(4, '0').toUpperCase();
-            }
-            return new TextEncoder().encode(escaped);
         }
-        throw new Error('Неизвестный режим');
+        throw new Error('Unknown mode');
     }
 
     function bytesToText(bytes, mode) {
         if (mode === 'ascii') {
             let text = '';
             for (let b of bytes) {
-                if (b > 127) throw new Error('Байт не ASCII (значение > 127)');
+                if (b > 127) throw new Error('Byte is not ASCII (value > 127)');
                 text += String.fromCharCode(b);
             }
             return text;
         } else if (mode === 'utf8') {
             return new TextDecoder().decode(bytes);
-        } else if (mode === 'unicode') {
-            let str = new TextDecoder().decode(bytes);
-            return str.replace(/\\u([0-9A-Fa-f]{4})/g, (match, hex) => {
-                return String.fromCharCode(parseInt(hex, 16));
-            });
+        } else if (mode === 'auto') {
+            try {
+                return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+            } catch (e) {
+                let text = '';
+                for (let b of bytes) {
+                    if (b > 127) text += '�';
+                    else text += String.fromCharCode(b);
+                }
+                return text;
+            }
         }
-        throw new Error('Неизвестный режим');
+        throw new Error('Unknown mode');
     }
 
-    // ---------- UI ----------
     function getMode() {
-        const radios = document.getElementsByName('mode');
-        for (let r of radios) if (r.checked) return r.value;
-        return 'utf8';
+        return document.getElementById('modeSelect').value;
     }
 
     function getSystem() {
         const radios = document.getElementsByName('system');
         for (let r of radios) if (r.checked) return r.value;
         return 'bin32';
+    }
+
+    function getPaddingChar() {
+        return document.getElementById('paddingChar').value || '=';
+    }
+
+    function getNoPad() {
+        return document.getElementById('noPadCheck').checked;
     }
 
     function showError(msg) {
@@ -400,13 +467,15 @@
 
     function encode() {
         const text = document.getElementById('inputText').value;
-        if (!text) { showError('Введите текст для кодирования'); return; }
+        if (!text) { showError('Enter text to encode'); return; }
         const mode = getMode();
         const system = getSystem();
+        const padding = getPaddingChar();
+        const noPad = getNoPad();
         try {
             const bytes = textToBytes(text, mode);
             if (system === 'bin32') {
-                const result = b32encode(bytes);
+                const result = b32encode(bytes, padding, noPad);
                 document.getElementById('outputBin32').value = result;
                 document.getElementById('outputHex').value = '';
             } else {
@@ -415,38 +484,52 @@
                 document.getElementById('outputBin32').value = '';
             }
         } catch (e) {
-            showError('Ошибка кодирования: ' + e.message);
+            showError('Encode error: ' + e.message);
         }
     }
 
     function decode() {
         const system = getSystem();
         const mode = getMode();
+        const padding = getPaddingChar();
         let encoded;
         if (system === 'bin32') {
             encoded = document.getElementById('outputBin32').value.trim();
-            if (!encoded) { showError('Поле Bin32 пусто'); return; }
+            if (!encoded) { showError('Bin32 field is empty'); return; }
         } else {
             encoded = document.getElementById('outputHex').value.trim();
-            if (!encoded) { showError('Поле Bin16 пусто'); return; }
+            if (!encoded) { showError('Bin16 field is empty'); return; }
         }
         try {
             let bytes;
             if (system === 'bin32') {
-                bytes = b32decode(encoded);
+                bytes = b32decode(encoded, padding);
             } else {
                 bytes = hexDecode(encoded);
             }
             const text = bytesToText(bytes, mode);
             document.getElementById('inputText').value = text;
         } catch (e) {
-            showError('Ошибка декодирования: ' + e.message);
+            showError('Decode error: ' + e.message);
         }
     }
 
+    function toggleTheme() {
+        document.body.classList.toggle('light');
+        const theme = document.body.classList.contains('light') ? 'light' : 'dark';
+        localStorage.setItem('theme', theme);
+    }
+
+    (function loadTheme() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light') {
+            document.body.classList.add('light');
+        }
+    })();
+
     window.onload = function() {
-        document.getElementById('inputText').value = 'Hello, world!';
-        document.querySelector('input[name="mode"][value="utf8"]').checked = true;
+        document.getElementById('inputText').value = 'Test';
+        document.getElementById('modeSelect').value = 'auto';
         document.querySelector('input[name="system"][value="bin32"]').checked = true;
         encode();
     };
