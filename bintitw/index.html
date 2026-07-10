@@ -12,7 +12,6 @@
             --text-secondary: #333;
             --border-color: #ccc;
             --input-bg: #fff;
-            --readonly-bg: #f7f7eb;
             --button-bg: #e0e0e0;
             --button-hover: #d0d0d0;
             --primary-bg: #3b6eff;
@@ -29,7 +28,6 @@
             --text-secondary: #333;
             --border-color: #aaa;
             --input-bg: #fafafa;
-            --readonly-bg: #f0f0e8;
             --button-bg: #ddd;
             --button-hover: #ccc;
             --primary-bg: #3b6eff;
@@ -39,10 +37,7 @@
             --error-text: #b71c1c;
             --badge-bg: #e0e0e0;
         }
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body {
             background: var(--bg-page);
             margin: 0;
@@ -70,10 +65,7 @@
             letter-spacing: 1px;
             color: var(--text-primary);
         }
-        h1 span {
-            font-weight: 600;
-            color: var(--primary-bg);
-        }
+        h1 span { font-weight: 600; color: var(--primary-bg); }
         .subtitle {
             text-align: center;
             opacity: 0.7;
@@ -83,7 +75,7 @@
             padding-bottom: 12px;
         }
         .alphabet {
-            background: var(--readonly-bg);
+            background: var(--input-bg);
             border-radius: 8px;
             padding: 10px 14px;
             text-align: center;
@@ -98,7 +90,6 @@
         .alphabet .ah { color: #1e5a9a; }
         .alphabet .jk { color: #2e7d32; }
         .alphabet .px { color: #b34b1a; }
-
         .section-title {
             font-weight: 400;
             font-size: 1.1rem;
@@ -111,10 +102,7 @@
             flex-wrap: wrap;
             margin-bottom: 14px;
         }
-        .col {
-            flex: 1;
-            min-width: 220px;
-        }
+        .col { flex: 1; min-width: 220px; }
         label {
             display: block;
             font-size: 0.8rem;
@@ -139,14 +127,7 @@
             outline: none;
             border-color: var(--primary-bg);
         }
-        textarea {
-            min-height: 100px;
-        }
-        .readonly {
-            background: var(--readonly-bg);
-            color: var(--text-primary);
-            cursor: default;
-        }
+        textarea { min-height: 100px; }
         .inline-group {
             display: flex;
             gap: 16px;
@@ -194,19 +175,13 @@
             min-width: 110px;
             font-size: 0.95rem;
         }
-        button:hover {
-            background: var(--button-hover);
-        }
+        button:hover { background: var(--button-hover); }
         button.primary {
             background: var(--primary-bg);
             color: #fff;
         }
-        button.primary:hover {
-            background: var(--primary-hover);
-        }
-        button:active {
-            transform: scale(0.97);
-        }
+        button.primary:hover { background: var(--primary-hover); }
+        button:active { transform: scale(0.97); }
         .footer {
             margin-top: 24px;
             font-size: 0.75rem;
@@ -245,9 +220,7 @@
             background: var(--button-bg);
             color: var(--text-primary);
         }
-        .theme-toggle:hover {
-            background: var(--button-hover);
-        }
+        .theme-toggle:hover { background: var(--button-hover); }
         @media (max-width: 700px) {
             .container { padding: 16px; }
             .row { flex-direction: column; }
@@ -290,11 +263,11 @@
     <div class="row">
         <div class="col">
             <label>Bin16 [hex]</label>
-            <textarea id="outputHex" class="readonly" readonly placeholder="Hexadecimal output"></textarea>
+            <textarea id="outputHex" placeholder="Hexadecimal output (editable for decode)"></textarea>
         </div>
         <div class="col">
             <label>Bin32 (5-bit code)</label>
-            <textarea id="outputBin32" class="readonly" readonly placeholder="32-ary output"></textarea>
+            <textarea id="outputBin32" placeholder="32-ary output (editable for decode)"></textarea>
         </div>
     </div>
 
@@ -327,9 +300,7 @@
             const padded = new Uint8Array(5);
             padded.set(chunk);
             let value = 0;
-            for (let j = 0; j < 5; j++) {
-                value = (value << 8) | padded[j];
-            }
+            for (let j = 0; j < 5; j++) value = (value << 8) | padded[j];
             for (let shift = 7; shift >= 0; shift--) {
                 const idx = (value >> (shift * 5)) & 0x1F;
                 result.push(ALPHABET[idx]);
@@ -337,15 +308,10 @@
         }
         const rem = bytes.length % 5;
         if (!noPad) {
-            if (rem === 1) {
-                result.splice(result.length - 6, 6, paddingChar, paddingChar, paddingChar, paddingChar, paddingChar, paddingChar);
-            } else if (rem === 2) {
-                result.splice(result.length - 4, 4, paddingChar, paddingChar, paddingChar, paddingChar);
-            } else if (rem === 3) {
-                result.splice(result.length - 3, 3, paddingChar, paddingChar, paddingChar);
-            } else if (rem === 4) {
-                result.splice(result.length - 1, 1, paddingChar);
-            }
+            if (rem === 1) result.splice(result.length - 6, 6, paddingChar, paddingChar, paddingChar, paddingChar, paddingChar, paddingChar);
+            else if (rem === 2) result.splice(result.length - 4, 4, paddingChar, paddingChar, paddingChar, paddingChar);
+            else if (rem === 3) result.splice(result.length - 3, 3, paddingChar, paddingChar, paddingChar);
+            else if (rem === 4) result.splice(result.length - 1, 1, paddingChar);
         }
         return result.join('');
     }
@@ -402,30 +368,27 @@
                 bytes.push(code);
             }
             return new Uint8Array(bytes);
-        } else if (mode === 'utf8' || mode === 'auto') {
+        } else {
             return new TextEncoder().encode(text);
         }
-        throw new Error('Unknown mode');
     }
 
     function bytesToText(bytes, mode) {
         if (mode === 'ascii') {
             let text = '';
             for (let b of bytes) {
-                if (b > 127) throw new Error('Byte is not ASCII (value > 127)');
-                text += String.fromCharCode(b);
+                text += (b > 127) ? '�' : String.fromCharCode(b);
             }
             return text;
         } else if (mode === 'utf8') {
-            return new TextDecoder().decode(bytes);
+            return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
         } else if (mode === 'auto') {
             try {
                 return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
             } catch (e) {
                 let text = '';
                 for (let b of bytes) {
-                    if (b > 127) text += '�';
-                    else text += String.fromCharCode(b);
+                    text += (b > 127) ? '�' : String.fromCharCode(b);
                 }
                 return text;
             }
@@ -433,23 +396,15 @@
         throw new Error('Unknown mode');
     }
 
-    function getMode() {
-        return document.getElementById('modeSelect').value;
-    }
-
+    // ---- UI ----
+    function getMode() { return document.getElementById('modeSelect').value; }
     function getSystem() {
         const radios = document.getElementsByName('system');
         for (let r of radios) if (r.checked) return r.value;
         return 'bin32';
     }
-
-    function getPaddingChar() {
-        return document.getElementById('paddingChar').value || '=';
-    }
-
-    function getNoPad() {
-        return document.getElementById('noPadCheck').checked;
-    }
+    function getPaddingChar() { return document.getElementById('paddingChar').value || '='; }
+    function getNoPad() { return document.getElementById('noPadCheck').checked; }
 
     function showError(msg) {
         const el = document.getElementById('errorMsg');
@@ -475,12 +430,10 @@
         try {
             const bytes = textToBytes(text, mode);
             if (system === 'bin32') {
-                const result = b32encode(bytes, padding, noPad);
-                document.getElementById('outputBin32').value = result;
+                document.getElementById('outputBin32').value = b32encode(bytes, padding, noPad);
                 document.getElementById('outputHex').value = '';
             } else {
-                const result = hexEncode(bytes);
-                document.getElementById('outputHex').value = result;
+                document.getElementById('outputHex').value = hexEncode(bytes);
                 document.getElementById('outputBin32').value = '';
             }
         } catch (e) {
@@ -516,19 +469,14 @@
 
     function toggleTheme() {
         document.body.classList.toggle('light');
-        const theme = document.body.classList.contains('light') ? 'light' : 'dark';
-        localStorage.setItem('theme', theme);
+        localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
     }
-
-    (function loadTheme() {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'light') {
-            document.body.classList.add('light');
-        }
+    (function() {
+        if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
     })();
 
     window.onload = function() {
-        document.getElementById('inputText').value = 'Test';
+        document.getElementById('inputText').value = 'This is a secret message, you need this 512K4D1D51158K1D51354HRD01146LG=';
         document.getElementById('modeSelect').value = 'auto';
         document.querySelector('input[name="system"][value="bin32"]').checked = true;
         encode();
