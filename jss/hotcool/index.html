@@ -1,3 +1,9 @@
+// ============================================================
+//  Мод: Hotter, Cooler, Black Hole, Logic, Magnet, Set Temp
+//  Версия 2.0
+// ============================================================
+
+// ---------- Существующие элементы (MEGA HOTTER/COOLER, 999K) ----------
 elements.mega_hotter = {
     color: "#ff2200",
     tick: function(pixel) {
@@ -86,3 +92,211 @@ elements["999k_cooler"] = {
     state: "solid",
     desc: "999K COOLER – set temp to -999,999°C, radius 3"
 };
+
+// ---------- Чёрная дыра и бомба ----------
+// Бомба: при касании с любым элементом превращается в чёрную дыру
+elements.black_hole_bomb = {
+    color: "#440000",
+    behavior: behaviors.POWDER,
+    category: "weapons",
+    state: "solid",
+    desc: "Чёрная дыра-бомба – при касании создаёт чёрную дыру",
+    tick: function(pixel) {
+        // Проверяем соседние клетки на наличие чего-либо
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+                if (i === 0 && j === 0) continue;
+                const x = pixel.x + j;
+                const y = pixel.y + i;
+                if (x >= 0 && x < width && y >= 0 && y < height) {
+                    const target = pixelMap[x][y];
+                    if (target && target.element && target.element !== "black_hole_bomb") {
+                        // Заменяем бомбу на чёрную дыру
+                        pixelMap[pixel.x][pixel.y] = createPixel("black_hole", pixel.x, pixel.y);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+};
+
+// Чёрная дыра – поглощает всё в радиусе, создаёт кольцо
+elements.black_hole = {
+    color: "#000000",
+    category: "weapons",
+    state: "solid",
+    desc: "Чёрная дыра – поглощает материю в радиусе 5 клеток",
+    tick: function(pixel) {
+        // Удаляем всё в радиусе 5 клеток
+        const radius = 5;
+        for (let i = -radius; i <= radius; i++) {
+            for (let j = -radius; j <= radius; j++) {
+                const x = pixel.x + j;
+                const y = pixel.y + i;
+                if (x >= 0 && x < width && y >= 0 && y < height) {
+                    const target = pixelMap[x][y];
+                    if (target && target.element && target.element !== "black_hole") {
+                        // Удаляем пиксель
+                        deletePixel(x, y);
+                    }
+                }
+            }
+        }
+        // Создаём вращающееся кольцо (частицы)
+        const angle = (Date.now() / 100) % (2 * Math.PI);
+        const ringRadius = 8;
+        const ringParticles = 16;
+        for (let i = 0; i < ringParticles; i++) {
+            const a = angle + (i / ringParticles) * 2 * Math.PI;
+            const rx = pixel.x + Math.round(ringRadius * Math.cos(a));
+            const ry = pixel.y + Math.round(ringRadius * Math.sin(a));
+            if (rx >= 0 && rx < width && ry >= 0 && ry < height) {
+                // Создаём временный пиксель кольца, если клетка пуста
+                if (isEmpty(rx, ry)) {
+                    const ringPixel = createPixel("glow", rx, ry);
+                    ringPixel.color = "#ffcc00";
+                    ringPixel.temp = 9999;
+                    // Можно добавить таймер на удаление, но пусть живут пока дыра существует
+                }
+            }
+        }
+    },
+    render: function(pixel, ctx) {
+        // Рисуем чёрный круг с эффектом линзы (просто круг)
+        ctx.fillStyle = "#000000";
+        ctx.beginPath();
+        ctx.arc(pixel.x, pixel.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        // Рисуем ореол
+        ctx.strokeStyle = "rgba(255,200,0,0.3)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(pixel.x, pixel.y, 8, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+};
+
+// ---------- Логические элементы (AND, OR, NOT, XOR) ----------
+// Используем температуру как сигнал: >100°C = 1, иначе 0.
+// Входы: для двухвходовых – слева (input1) и сверху (input2).
+// Выход – температура самого элемента.
+function getSignal(x, y) {
+    if (x < 0 || x >= width || y < 0 || y >= height) return 0;
+    const p = pixelMap[x][y];
+    if (!p || !p.element) return 0;
+    return (p.temp > 100) ? 1 : 0;
+}
+
+function setOutput(pixel, value) {
+    pixel.temp = value ? 200 : 0;
+}
+
+elements.and_gate = {
+    color: "#00aa00",
+    category: "machines",
+    state: "solid",
+    desc: "AND – выход 1, если оба входа (слева и сверху) активны",
+    tick: function(pixel) {
+        const s1 = getSignal(pixel.x - 1, pixel.y);
+        const s2 = getSignal(pixel.x, pixel.y - 1);
+        setOutput(pixel, s1 && s2);
+    }
+};
+
+elements.or_gate = {
+    color: "#aa8800",
+    category: "machines",
+    state: "solid",
+    desc: "OR – выход 1, если хотя бы один вход активен",
+    tick: function(pixel) {
+        const s1 = getSignal(pixel.x - 1, pixel.y);
+        const s2 = getSignal(pixel.x, pixel.y - 1);
+        setOutput(pixel, s1 || s2);
+    }
+};
+
+elements.not_gate = {
+    color: "#aa00aa",
+    category: "machines",
+    state: "solid",
+    desc: "NOT – выход 1, если вход (слева) неактивен",
+    tick: function(pixel) {
+        const s = getSignal(pixel.x - 1, pixel.y);
+        setOutput(pixel, !s);
+    }
+};
+
+elements.xor_gate = {
+    color: "#0055aa",
+    category: "machines",
+    state: "solid",
+    desc: "XOR – выход 1, если ровно один из двух входов активен",
+    tick: function(pixel) {
+        const s1 = getSignal(pixel.x - 1, pixel.y);
+        const s2 = getSignal(pixel.x, pixel.y - 1);
+        setOutput(pixel, (s1 && !s2) || (!s1 && s2));
+    }
+};
+
+// ---------- Магнит (притягивает металлы) ----------
+// Список металлических элементов (можно расширить)
+const METALS = ["iron", "steel", "gold", "copper", "silver", "tin", "lead", "zinc", "nickel", "aluminum", "bronze", "brass"];
+
+elements.magnet = {
+    color: "#ff3333",
+    category: "machines",
+    state: "solid",
+    desc: "Магнит – притягивает металлические пиксели в радиусе 10",
+    tick: function(pixel) {
+        const radius = 10;
+        for (let i = -radius; i <= radius; i++) {
+            for (let j = -radius; j <= radius; j++) {
+                const x = pixel.x + j;
+                const y = pixel.y + i;
+                if (x >= 0 && x < width && y >= 0 && y < height) {
+                    const target = pixelMap[x][y];
+                    if (target && target.element && METALS.includes(target.element)) {
+                        // Притягиваем к магниту (перемещаем на 1 клетку ближе)
+                        const dx = pixel.x - x;
+                        const dy = pixel.y - y;
+                        const dist = Math.max(Math.abs(dx), Math.abs(dy));
+                        if (dist > 1) {
+                            const stepX = Math.sign(dx);
+                            const stepY = Math.sign(dy);
+                            const newX = x + stepX;
+                            const newY = y + stepY;
+                            if (isEmpty(newX, newY)) {
+                                // Перемещаем пиксель
+                                pixelMap[newX][newY] = target;
+                                deletePixel(x, y);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+// ---------- Инструмент "Set Temp" ----------
+tools.set_temp = {
+    desc: "Устанавливает температуру выбранного пикселя (ввод числа)",
+    onUse: function(x, y) {
+        const p = pixelMap[x][y];
+        if (!p || !p.element) return;
+        const input = prompt("Введите температуру (от 0 до " + (Math.pow(2,30)-1) + "):", "100");
+        if (input === null) return;
+        const temp = parseFloat(input);
+        if (isNaN(temp) || temp < 0 || temp > Math.pow(2,30)-1) {
+            alert("Некорректное значение. Допустимо от 0 до " + (Math.pow(2,30)-1));
+            return;
+        }
+        p.temp = temp;
+    }
+};
+
+// ---------- Добавим категории для удобства ----------
+// Убедимся, что все элементы зарегистрированы
+
+console.log("Мод успешно загружен! Элементы: MEGA HOTTER, MEGA COOLER, 999K HOTTER, 999K COOLER, BLACK HOLE BOMB, BLACK HOLE, AND, OR, NOT, XOR, MAGNET. Инструмент: Set Temp.");
