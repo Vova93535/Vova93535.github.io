@@ -13,5 +13,24 @@
         <button class="google-btn">Google Search</button>
         <p class="hint">something with 2*16</p>
     </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const input = document.querySelector('.google-input');
+    const btn = document.querySelector('.google-btn');
+
+    function handleSearch() {
+      if (input.value.trim() === '32') {
+        window.location.href = 'search.html?q=32';
+      }
+    }
+
+    btn.addEventListener('click', handleSearch);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        handleSearch();
+      }
+    });
+  });
+</script>
 </body>
 </html>
