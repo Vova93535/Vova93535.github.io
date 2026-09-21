@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buffalo</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 22px;
+            line-height: 1.5;
+            color: #000000;
+            overflow-wrap: break-word;
+        }
+        #container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 20px 40px 20px;
+        }
+        .buffalo-word {
+            display: inline;
+            color: #000000;
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* ===== Minecraft-style achievements ===== */
+        #achievements {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: stretch;
+            width: 340px;
+            background: #2b2b2b;
+            border: 2px solid #1a1a1a;
+            box-shadow:
+                inset 0 0 0 2px #4a4a4a,
+                0 4px 10px rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            transform: translateX(120%);
+            opacity: 0;
+            animation: slideIn 0.4s ease-out forwards;
+            image-rendering: pixelated;
+        }
+
+        .toast.hide {
+            animation: slideOut 0.4s ease-in forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to   { transform: translateX(0);   opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0);   opacity: 1; }
+            to   { transform: translateX(120%); opacity: 0; }
+        }
+
+        .toast-icon {
+            width: 56px;
+            min-width: 56px;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border-right: 2px solid #4a4a4a;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .toast-body {
+            padding: 6px 10px 8px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .toast-title {
+            color: #ffff55;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            text-shadow: 1px 1px 0 #3f3f00;
+            margin-bottom: 2px;
+        }
+
+        .toast-name {
+            color: #ffffff;
+            font-size: 15px;
+            text-shadow: 1px 1px 0 #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="achievements"></div>
+
+    <script>
+        const container = document.getElementById('container');
+        const achievementsEl = document.getElementById('achievements');
+
+        // Базовое предложение из 8 слов
+        const basePattern = [
+            'Buffalo', 'buffalo',
+            'Buffalo', 'buffalo',
+            'buffalo', 'buffalo',
+            'Buffalo', 'buffalo'
+        ];
+
+        // Настройки логарифмической скорости
+        const DELAY_START = 500;   // мс — старт
+        const DELAY_END   = 5;     // мс — финиш
+        const RAMP_MS     = 30000; // за сколько мс проходим путь
+
+        // ===== Достижения =====
+        // Триггер по количеству слов, попавших на страницу
+        const ACHIEVEMENTS = [
+            { at: 1,    icon: '🦬', title: 'Достижение получено!', name: 'Первый Buffalo' },
+            { at: 8,    icon: '📜', title: 'Достижение получено!', name: 'Полное предложение' },
+            { at: 32,   icon: '🌿', title: 'Достижение получено!', name: 'Маленькое стадо' },
+            { at: 128,  icon: '🐃', title: 'Достижение получено!', name: 'Большое стадо' },
+            { at: 512,  icon: '🔥', title: 'Достижение получено!', name: 'Разгон' },
+            { at: 2048, icon: '⚡', title: 'Достижение получено!', name: 'Скорость света' },
+            { at: 8192, icon: '👑', title: 'Достижение получено!', name: 'Легенда Buffalo' },
+            { at: 32768,icon: '💎', title: 'Достижение получено!', name: 'Бесконечность не предел' }
+        ];
+
+        let unlocked = new Set();
+
+        function showToast(icon, title, name) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-body">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-name">${name}</div>
+                </div>
+            `;
+            achievementsEl.appendChild(toast);
+
+            // Убираем через 4 секунды
+            setTimeout(() => {
+                toast.classList.add('hide');
+                toast.addEventListener('animationend', () => toast.remove(), { once: true });
+            }, 4000);
+        }
+
+        function checkAchievements(count) {
+            for (const a of ACHIEVEMENTS) {
+                if (!unlocked.has(a.at) && count >= a.at) {
+                    unlocked.add(a.at);
+                    showToast(a.icon, a.title, a.name);
+                }
+            }
+        }
+
+        // ===== Скорость =====
+        let wordIndex = 0;
+        const startTime = performance.now();
+
+        function logDelay(t) {
+            if (t >= 1) return DELAY_END;
+            const k = Math.log(1 + t * (Math.E - 1));
+            return DELAY_START + (DELAY_END - DELAY_START) * k;
+        }
+
+        function addWord() {
+            const word = basePattern[wordIndex % basePattern.length];
+            const span = document.createElement('span');
+            span.className = 'buffalo-word';
+            span.textContent = word + ' ';
+            container.appendChild(span);
+
+            wordIndex++;
+            checkAchievements(wordIndex);
+
+            const elapsed = performance.now() - startTime;
+            const t = Math.min(elapsed / RAMP_MS, 1);
+            const delay = logDelay(t);
+
+            setTimeout(addWord, delay);
+        }
+
+        addWord();
+    </script>
+</body>
+</html>
