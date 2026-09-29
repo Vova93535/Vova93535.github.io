@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buffalo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         html, body {
             margin: 0;
@@ -18,13 +21,78 @@
         #container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 20px 20px 40px 20px;
+            padding: 20px 20px 120px 20px;
         }
+
+        /* ===== Minecraft-style words ===== */
         .buffalo-word {
             display: inline;
-            color: #000000;
-            font-weight: normal;
-            font-style: normal;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            color: #3f3f3f;
+            text-shadow: 2px 2px 0 #b0b0b0;
+            margin-right: 6px;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        /* Тёплое свечение при разгоне */
+        .buffalo-word.hot {
+            color: #ffaa00;
+            text-shadow: 2px 2px 0 #8a5500;
+        }
+        .buffalo-word.blazing {
+            color: #ff5500;
+            text-shadow: 2px 2px 0 #7a1f00;
+        }
+        .buffalo-word.cosmic {
+            color: #a020f0;
+            text-shadow: 2px 2px 0 #3a0070, 0 0 8px #a020f0;
+        }
+
+        /* ===== HUD ===== */
+        #hud {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 11px;
+            color: #fff;
+            pointer-events: none;
+        }
+
+        .hud-chip {
+            background: #2b2b2b;
+            border: 2px solid #1a1a1a;
+            box-shadow:
+                inset 0 0 0 2px #4a4a4a,
+                0 3px 0 rgba(0, 0, 0, 0.4);
+            padding: 6px 10px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        #langBtn {
+            pointer-events: auto;
+            cursor: pointer;
+            background: #2b2b2b;
+            border: 2px solid #1a1a1a;
+            box-shadow:
+                inset 0 0 0 2px #4a4a4a,
+                0 3px 0 rgba(0, 0, 0, 0.4);
+            color: #ffff55;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 11px;
+            padding: 6px 10px;
+            text-shadow: 1px 1px 0 #3f3f00;
+        }
+        #langBtn:active {
+            transform: translateY(2px);
+            box-shadow:
+                inset 0 0 0 2px #4a4a4a;
         }
 
         /* ===== Minecraft-style achievements ===== */
@@ -37,6 +105,7 @@
             flex-direction: column;
             gap: 8px;
             pointer-events: none;
+            max-width: 340px;
         }
 
         .toast {
@@ -106,14 +175,66 @@
     </style>
 </head>
 <body>
+    <div id="hud">
+        <div class="hud-chip" id="wordCount">Слов: 0</div>
+        <div class="hud-chip" id="speed">Скорость: 0/сек</div>
+        <button id="langBtn">RU / EN</button>
+    </div>
     <div id="container"></div>
     <div id="achievements"></div>
 
     <script>
         const container = document.getElementById('container');
         const achievementsEl = document.getElementById('achievements');
+        const wordCountEl = document.getElementById('wordCount');
+        const speedEl = document.getElementById('speed');
+        const langBtn = document.getElementById('langBtn');
 
-        // Базовое предложение из 8 слов
+        // ===== Локализация =====
+        const LANG = {
+            ru: {
+                words: 'Слов',
+                speed: 'Скорость',
+                perSec: '/сек',
+                got: 'Достижение получено!',
+                names: {
+                    1:       'Первый Buffalo',
+                    8:       'Полное предложение',
+                    32:      'Маленькое стадо',
+                    128:     'Большое стадо',
+                    512:     'Разгон',
+                    2048:    'Скорость света',
+                    8192:    'Легенда Buffalo',
+                    32768:   'Бесконечность не предел',
+                    131072:  'Стадо-легенда',
+                    1048576: 'Buffalo Overlord',
+                    2097152: 'Ты стал бизоном'
+                }
+            },
+            en: {
+                words: 'Words',
+                speed: 'Speed',
+                perSec: '/sec',
+                got: 'Achievement get!',
+                names: {
+                    1:       'First Buffalo',
+                    8:       'Full Sentence',
+                    32:      'Small Herd',
+                    128:     'Big Herd',
+                    512:     'Ramp Up',
+                    2048:    'Speed of Light',
+                    8192:    'Buffalo Legend',
+                    32768:   'Infinity Isn\'t the Limit',
+                    131072:  'Herd Legend',
+                    1048576: 'Buffalo Overlord',
+                    2097152: 'You Became the Bison'
+                }
+            }
+        };
+
+        let currentLang = 'ru';
+
+        // ===== Базовое предложение =====
         const basePattern = [
             'Buffalo', 'buffalo',
             'Buffalo', 'buffalo',
@@ -121,22 +242,24 @@
             'Buffalo', 'buffalo'
         ];
 
-        // Настройки логарифмической скорости
-        const DELAY_START = 500;   // мс — старт
-        const DELAY_END   = 5;     // мс — финиш
-        const RAMP_MS     = 30000; // за сколько мс проходим путь
+        // ===== Скорость =====
+        const DELAY_START = 500;
+        const DELAY_END   = 5;
+        const RAMP_MS     = 30000;
 
         // ===== Достижения =====
-        // Триггер по количеству слов, попавших на страницу
         const ACHIEVEMENTS = [
-            { at: 1,    icon: '🦬', title: 'Достижение получено!', name: 'Первый Buffalo' },
-            { at: 8,    icon: '📜', title: 'Достижение получено!', name: 'Полное предложение' },
-            { at: 32,   icon: '🌿', title: 'Достижение получено!', name: 'Маленькое стадо' },
-            { at: 128,  icon: '🐃', title: 'Достижение получено!', name: 'Большое стадо' },
-            { at: 512,  icon: '🔥', title: 'Достижение получено!', name: 'Разгон' },
-            { at: 2048, icon: '⚡', title: 'Достижение получено!', name: 'Скорость света' },
-            { at: 8192, icon: '👑', title: 'Достижение получено!', name: 'Легенда Buffalo' },
-            { at: 32768,icon: '💎', title: 'Достижение получено!', name: 'Бесконечность не предел' }
+            { at: 1,       icon: '🦬', nameKey: 1 },
+            { at: 8,       icon: '📜', nameKey: 8 },
+            { at: 32,      icon: '🌿', nameKey: 32 },
+            { at: 128,     icon: '🐃', nameKey: 128 },
+            { at: 512,     icon: '🔥', nameKey: 512 },
+            { at: 2048,    icon: '⚡', nameKey: 2048 },
+            { at: 8192,    icon: '👑', nameKey: 8192 },
+            { at: 32768,   icon: '💎', nameKey: 32768 },
+            { at: 131072,  icon: '🌟', nameKey: 131072 },
+            { at: 1048576, icon: '🏆', nameKey: 1048576 },
+            { at: 2097152, icon: '🧙', nameKey: 2097152 }
         ];
 
         let unlocked = new Set();
@@ -153,7 +276,6 @@
             `;
             achievementsEl.appendChild(toast);
 
-            // Убираем через 4 секунды
             setTimeout(() => {
                 toast.classList.add('hide');
                 toast.addEventListener('animationend', () => toast.remove(), { once: true });
@@ -164,37 +286,88 @@
             for (const a of ACHIEVEMENTS) {
                 if (!unlocked.has(a.at) && count >= a.at) {
                     unlocked.add(a.at);
-                    showToast(a.icon, a.title, a.name);
+                    const t = LANG[currentLang];
+                    showToast(a.icon, t.got, t.names[a.nameKey]);
                 }
             }
         }
 
-        // ===== Скорость =====
-        let wordIndex = 0;
-        const startTime = performance.now();
-
+        // ===== Логарифмическая скорость =====
         function logDelay(t) {
             if (t >= 1) return DELAY_END;
             const k = Math.log(1 + t * (Math.E - 1));
             return DELAY_START + (DELAY_END - DELAY_START) * k;
         }
 
+        // ===== Уровни "жара" слова по прогрессу =====
+        function heatClass(t) {
+            if (t < 0.3) return '';
+            if (t < 0.6) return 'hot';
+            if (t < 0.9) return 'blazing';
+            return 'cosmic';
+        }
+
+        // ===== HUD =====
+        let lastHudUpdate = 0;
+        let lastCount = 0;
+        let lastCountTime = performance.now();
+
+        function updateHud(count) {
+            const now = performance.now();
+            if (now - lastHudUpdate < 250) return;
+            lastHudUpdate = now;
+
+            const t = LANG[currentLang];
+            wordCountEl.textContent = `${t.words}: ${count.toLocaleString()}`;
+
+            const dt = (now - lastCountTime) / 1000;
+            const dw = count - lastCount;
+            const speed = dt > 0 ? dw / dt : 0;
+            speedEl.textContent = `${t.speed}: ${speed.toFixed(1)}${t.perSec}`;
+
+            lastCount = count;
+            lastCountTime = now;
+        }
+
+        // ===== Основной цикл =====
+        let wordIndex = 0;
+        const startTime = performance.now();
+        let stopped = false;
+
         function addWord() {
+            if (stopped) return;
+
             const word = basePattern[wordIndex % basePattern.length];
             const span = document.createElement('span');
             span.className = 'buffalo-word';
-            span.textContent = word + ' ';
+            span.textContent = word;
             container.appendChild(span);
 
             wordIndex++;
             checkAchievements(wordIndex);
+            updateHud(wordIndex);
 
             const elapsed = performance.now() - startTime;
             const t = Math.min(elapsed / RAMP_MS, 1);
             const delay = logDelay(t);
 
+            // Красим слово по прогрессу
+            const heat = heatClass(t);
+            if (heat) span.classList.add(heat);
+
             setTimeout(addWord, delay);
         }
+
+        // ===== Переключение языка =====
+        langBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            const t = LANG[currentLang];
+            wordCountEl.textContent = `${t.words}: ${wordIndex.toLocaleString()}`;
+            speedEl.textContent = `${t.speed}: 0.0${t.perSec}`;
+            // Сброс, чтобы HUD обновился сразу
+            lastCountTime = performance.now();
+            lastCount = wordIndex;
+        });
 
         addWord();
     </script>
